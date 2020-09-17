@@ -1,0 +1,465 @@
+# WARNING: guesswork based on a preliminary copy of the new Lemmario 
+# It must be tried with a remote connection over the DB in Marginalia.
+
+# URI schema:
+# http://{domain}/{type}/{concept}/{reference}
+# http://lila-erc.eu/data/id/lemma/@id.numerico@
+# http://lila-erc.eu/data/id/hypolemma	/@id.numerico@
+
+@prefix map: <#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix d2rq: <http://www.wiwiss.fu-berlin.de/suhl/bizer/D2RQ/0.1#> .
+@prefix jdbc: <http://d2rq.org/terms/jdbc/> .
+@prefix lila: <http://lila-erc.eu/ontologies/lila/> .
+#@prefix lila: <http://lila-erc.eu/ontologies/lila/> .
+@prefix ontolex: <http://www.w3.org/ns/lemon/ontolex#> .
+
+map:database a d2rq:Database;
+	d2rq:jdbcDriver "com.mysql.jdbc.Driver";
+    d2rq:jdbcDSN "jdbc:mysql://<your_db_path>";
+	d2rq:username "yourUser";
+	d2rq:password "yourPassword";
+	jdbc:autoReconnect "true";
+	#d2rq:resultSizeLimit 10000 ;
+	jdbc:zeroDateTimeBehavior "convertToNull" .
+
+##################################### LEMMAS ############################################
+map:lemmas a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	# CHECK TABLE/COL NAME
+	d2rq:uriPattern "http://lila-erc.eu/data/id/lemma/@@lemma.id_lemma@@";
+	d2rq:class lila:Lemma .
+
+## lemma labels
+map:lemma_label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:lemmas;
+	d2rq:property rdfs:label;
+	d2rq:column "lemma.label";	
+	.
+
+## lemma: inflection type
+map:lemma_inflType a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:lemmas;
+	d2rq:property lila:hasInflectionType;
+	d2rq:uriPattern "http://lila-erc.eu/ontologies/lila/@@lemma.fl_cat@@" .
+
+## lemma: written representation
+map:lemma_writtenRep a d2rq:PropertyBridge ;
+	d2rq:belongsToClassMap map:lemmas ;
+	d2rq:property ontolex:writtenRep ;
+    d2rq:column "lemma_wr.wr" ;
+    d2rq:join "lemma.id_lemma = lemma_wr.id_lemma" ;
+	.
+
+## lemma: phonetic representation
+map:lemma_phoneticRep a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:lemmas;
+	d2rq:property lila:prosodicRepresentation ;
+   	d2rq:column "phonetic_rep.phr";
+    	d2rq:join "lemma.id_lemma <= phonetic_rep.id_lemma" ;
+	.
+
+## lemma: POS mapping
+map:lemma_POS a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:lemmas ;
+    d2rq:property lila:hasPOS ;
+    d2rq:uriColumn "lemma.upostag";
+    d2rq:translateWith map:PosTable;
+    .
+    
+map:PosTable a d2rq:TranslationTable;
+    d2rq:translation [ d2rq:databaseValue "ADJ"; d2rq:rdfValue lila:adjective; ];
+    d2rq:translation [ d2rq:databaseValue "ADP"; d2rq:rdfValue lila:adposition; ];
+    d2rq:translation [ d2rq:databaseValue "ADV"; d2rq:rdfValue lila:adverb; ];
+    d2rq:translation [ d2rq:databaseValue "AUX"; d2rq:rdfValue lila:auxiliary; ];
+    d2rq:translation [ d2rq:databaseValue "CCONJ"; d2rq:rdfValue lila:coordinating_conjunction; ];
+    d2rq:translation [ d2rq:databaseValue "DET"; d2rq:rdfValue lila:determiner; ];
+    d2rq:translation [ d2rq:databaseValue "INTJ"; d2rq:rdfValue lila:interjection; ];
+    d2rq:translation [ d2rq:databaseValue "NOUN"; d2rq:rdfValue lila:noun; ];
+    d2rq:translation [ d2rq:databaseValue "NUM"; d2rq:rdfValue lila:numeral; ];
+    d2rq:translation [ d2rq:databaseValue "PART"; d2rq:rdfValue lila:particle; ];
+    d2rq:translation [ d2rq:databaseValue "PRON"; d2rq:rdfValue lila:pronoun; ];
+    d2rq:translation [ d2rq:databaseValue "PROPN"; d2rq:rdfValue lila:proper_noun; ];
+    d2rq:translation [ d2rq:databaseValue "PUNCT"; d2rq:rdfValue lila:punctuation; ];
+    d2rq:translation [ d2rq:databaseValue "SCONJ"; d2rq:rdfValue lila:subordinating_conjunction; ];
+    d2rq:translation [ d2rq:databaseValue "SYM"; d2rq:rdfValue lila:symbol; ];
+    d2rq:translation [ d2rq:databaseValue "VERB"; d2rq:rdfValue lila:verb; ];
+    d2rq:translation [ d2rq:databaseValue "X"; d2rq:rdfValue lila:other; ];
+    .
+
+## lemma: Degree mapping
+map:lemma_Degree a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:lemmas ;
+    d2rq:property lila:hasDegree ;
+    d2rq:uriColumn "lemma.grad";
+    d2rq:translateWith map:GradTable;
+    .
+    
+map:GradTable a d2rq:TranslationTable;
+    d2rq:translation [ d2rq:databaseValue "Abs"; d2rq:rdfValue lila:superlative; ];
+    d2rq:translation [ d2rq:databaseValue "Comp"; d2rq:rdfValue lila:comparative; ];
+    d2rq:translation [ d2rq:databaseValue "Pos"; d2rq:rdfValue lila:positive; ];
+    .
+
+## lemma: gender masc
+map:gender_star_masc a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:lemmas ;
+    d2rq:property lila:hasGender ;
+    d2rq:condition "lemma.gen IN ('m', '1', '2', '*') AND lemma.upostag IN ('PROPN', 'NOUN')" ;
+    d2rq:constantValue lila:masculine;
+    .
+
+## lemma: gender fem
+map:gender_star_fem a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:lemmas ;
+    d2rq:property lila:hasGender ;
+    d2rq:condition "lemma.gen IN ('f', '2', '*') AND lemma.upostag IN ('PROPN', 'NOUN')" ;
+    d2rq:constantValue lila:feminine;
+    .
+    
+## lemma: gender neut
+map:gender_star_neut a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:lemmas ;
+    d2rq:property lila:hasGender ;
+    d2rq:condition "lemma.gen IN ('n', '1', '*') AND lemma.upostag IN ('PROPN', 'NOUN')";
+    d2rq:constantValue lila:neuter;
+    .
+
+## lemma variant: direct
+map:is_lemma_variant a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:lemmas ;
+    d2rq:property lila:lemmaVariant ;
+    d2rq:uriPattern "http://lila-erc.eu/data/id/lemma/@@is_lemma_variant.lemma_target@@";
+    d2rq:join "lemma.id_lemma <= is_lemma_variant.lemma_source" ;
+    .
+    
+##################################### End of Lemmas mapping ############################################
+
+
+##################################### IpoLemma mapping ############################################
+map:hypolemmas a d2rq:ClassMap;
+    d2rq:dataStorage map:database;
+    # CHECK TABLE/COL NAME
+    d2rq:uriPattern "http://lila-erc.eu/data/id/hypolemma/@@ipolemma.id_ipolemma@@"; 
+    d2rq:class lila:Hypolemma ;
+    d2rq:condition "ipolemma.type = ipolemmaType.type and lemma_ipolemma.id_ipolemma = ipolemma.id_ipolemma and ipolemmaType.type NOT IN('COMP', 'SUP')" .
+
+## hypolemma labels
+map:hypolemma_label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:hypolemmas;
+	d2rq:property rdfs:label;
+	d2rq:column "ipolemma.label";	
+	.
+
+## hypolemma: inflection type
+map:hypolemma_inflType a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:hypolemmas;
+	d2rq:property lila:hasInflectionType;
+	d2rq:uriPattern "http://lila-erc.eu/ontologies/lila/@@ipolemmaType.fl_cat@@" .
+
+## hypolemma: written representation
+map:hypolemma_writtenRep a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypolemmas ;
+    d2rq:property ontolex:writtenRep ;
+    d2rq:column "ipolemma_wr.wr" ;
+    d2rq:join "ipolemma.id_ipolemma = ipolemma_wr.id_ipolemma" ;
+	.
+
+## hypolemma: phonetic representation
+#map:hypolemma_phoneticRep a d2rq:PropertyBridge;
+#	d2rq:belongsToClassMap map:hypolemmas;
+#	d2rq:property lila:prosodicRepresentation ;
+#   	d2rq:column "phonetic_rep.phr";
+#    	d2rq:join "lemma.id_lemma <= phonetic_rep.id_lemma" ;
+#	.
+
+
+map:PosTableHypolemma a d2rq:TranslationTable;
+    d2rq:translation [ d2rq:databaseValue "ADJ"; d2rq:rdfValue lila:adjective; ];
+    d2rq:translation [ d2rq:databaseValue "ADP"; d2rq:rdfValue lila:adposition; ];
+    d2rq:translation [ d2rq:databaseValue "ADV"; d2rq:rdfValue lila:adverb; ];
+    d2rq:translation [ d2rq:databaseValue "AUX"; d2rq:rdfValue lila:auxiliary; ];
+    d2rq:translation [ d2rq:databaseValue "CCONJ"; d2rq:rdfValue lila:coordinating_conjunction; ];
+    d2rq:translation [ d2rq:databaseValue "DET"; d2rq:rdfValue lila:determiner; ];
+    d2rq:translation [ d2rq:databaseValue "INTJ"; d2rq:rdfValue lila:interjection; ];
+    d2rq:translation [ d2rq:databaseValue "NOUN"; d2rq:rdfValue lila:noun; ];
+    d2rq:translation [ d2rq:databaseValue "NUM"; d2rq:rdfValue lila:numeral; ];
+    d2rq:translation [ d2rq:databaseValue "PART"; d2rq:rdfValue lila:particle; ];
+    d2rq:translation [ d2rq:databaseValue "PRON"; d2rq:rdfValue lila:pronoun; ];
+    d2rq:translation [ d2rq:databaseValue "PROPN"; d2rq:rdfValue lila:proper_noun; ];
+    d2rq:translation [ d2rq:databaseValue "PUNCT"; d2rq:rdfValue lila:punctuation; ];
+    d2rq:translation [ d2rq:databaseValue "SCONJ"; d2rq:rdfValue lila:subordinating_conjunction; ];
+    d2rq:translation [ d2rq:databaseValue "SYM"; d2rq:rdfValue lila:symbol; ];
+    d2rq:translation [ d2rq:databaseValue "VERB"; d2rq:rdfValue lila:verb; ];
+    d2rq:translation [ d2rq:databaseValue "X"; d2rq:rdfValue lila:other; ];
+    .
+
+## hypolemma: POS mapping
+map:hypolemma_POS a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypolemmas ;
+    d2rq:property lila:hasPOS ;
+    d2rq:uriColumn "ipolemmaType.upostag";
+    d2rq:translateWith map:PosTableHypolemma;
+    .
+    
+    
+    
+map:GradTableHypolemma a d2rq:TranslationTable;
+    d2rq:translation [ d2rq:databaseValue "Abs"; d2rq:rdfValue lila:superlative; ];
+    d2rq:translation [ d2rq:databaseValue "Comp"; d2rq:rdfValue lila:comparative; ];
+    d2rq:translation [ d2rq:databaseValue "Pos"; d2rq:rdfValue lila:positive; ];
+    .
+    
+## hypolemma: Degree mapping
+map:hypolemma_Degree a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypolemmas ;
+    d2rq:property lila:hasDegree ;
+    d2rq:uriColumn "ipolemmaType.grad";
+    d2rq:translateWith map:GradTableHypolemma;
+    .
+    
+## hypolemma: gender masc
+map:gender_star_mascHypoLemma a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypolemmas ;
+    d2rq:property lila:hasGender ;
+    d2rq:condition "ipolemmaType.gen IN ('m', '1', '2', '*') AND ipolemmaType.upostag IN ('PROPN', 'NOUN')" ;
+    d2rq:constantValue lila:masculine;
+    .
+
+## hypolemma: gender fem
+map:gender_star_femHypolemma a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypolemmas ;
+    d2rq:property lila:hasGender ;
+    d2rq:condition "ipolemmaType.gen IN ('f', '2', '*') AND ipolemmaType.upostag IN ('PROPN', 'NOUN')" ;
+    d2rq:constantValue lila:feminine;
+    .
+    
+## hypolemma: gender neut
+map:gender_star_neutHypolemma a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypolemmas ;
+    d2rq:property lila:hasGender ;
+    d2rq:condition "ipolemmaType.gen IN ('n', '1', '*') AND ipolemmaType.upostag IN ('PROPN', 'NOUN')";
+    d2rq:constantValue lila:neuter;
+    .
+
+## is hypolemma
+map:is_lemma_variantHypolemma a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypolemmas ;
+    d2rq:property lila:isHypolemma ;
+    d2rq:uriPattern "http://lila-erc.eu/data/id/lemma/@@lemma_ipolemma.id_lemma@@"; 
+    .
+
+
+## hypolemma: derivational
+map:hypolemma_wfl a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypolemmas ;
+    d2rq:property lila:hasSuffix ;
+    d2rq:uriPattern "http://lila-erc.eu/data/id/suffix/@@ipolemma_suffix.id_suffix@@";
+    d2rq:join "ipolemma.id_ipolemma = ipolemma_suffix.id_ipolemma" ;
+	.
+
+##################################### End of ipoLemmas mapping ############################################
+
+
+##################################### Ipo Ipo Lemma mapping ############################################
+map:hypohypolemmas a d2rq:ClassMap;
+    d2rq:dataStorage map:database;
+    # CHECK TABLE/COL NAME
+    d2rq:uriPattern "http://lila-erc.eu/data/id/hypolemma/@@ipolemma.id_ipolemma@@"; 
+    d2rq:class lila:Hypolemma ;
+    d2rq:condition "ipolemma.type = ipolemmaType.type and ipolemma_ipolemma.ipo_id_ipolemma = ipolemma.id_ipolemma and ipolemmaType.type NOT IN('COMP', 'SUP')" .
+
+## hypohypolemma labels
+map:hypohypolemma_label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:hypohypolemmas;
+	d2rq:property rdfs:label;
+	d2rq:column "ipolemma.label";	
+	.
+
+## hypohypolemma: inflection type
+map:hypohypolemma_inflType a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:hypohypolemmas;
+	d2rq:property lila:hasInflectionType;
+	d2rq:uriPattern "http://lila-erc.eu/ontologies/lila/@@ipolemmaType.fl_cat@@" .
+
+## hypohypolemma: written representation
+map:hypohypolemma_writtenRep a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypohypolemmas ;
+    d2rq:property ontolex:writtenRep ;
+    d2rq:column "ipolemma_wr.wr" ;
+    d2rq:join "ipolemma.id_ipolemma = ipolemma_wr.id_ipolemma" ;
+	.
+
+
+
+map:PosTablehypohypolemma a d2rq:TranslationTable;
+    d2rq:translation [ d2rq:databaseValue "ADJ"; d2rq:rdfValue lila:adjective; ];
+    d2rq:translation [ d2rq:databaseValue "ADP"; d2rq:rdfValue lila:adposition; ];
+    d2rq:translation [ d2rq:databaseValue "ADV"; d2rq:rdfValue lila:adverb; ];
+    d2rq:translation [ d2rq:databaseValue "AUX"; d2rq:rdfValue lila:auxiliary; ];
+    d2rq:translation [ d2rq:databaseValue "CCONJ"; d2rq:rdfValue lila:coordinating_conjunction; ];
+    d2rq:translation [ d2rq:databaseValue "DET"; d2rq:rdfValue lila:determiner; ];
+    d2rq:translation [ d2rq:databaseValue "INTJ"; d2rq:rdfValue lila:interjection; ];
+    d2rq:translation [ d2rq:databaseValue "NOUN"; d2rq:rdfValue lila:noun; ];
+    d2rq:translation [ d2rq:databaseValue "NUM"; d2rq:rdfValue lila:numeral; ];
+    d2rq:translation [ d2rq:databaseValue "PART"; d2rq:rdfValue lila:particle; ];
+    d2rq:translation [ d2rq:databaseValue "PRON"; d2rq:rdfValue lila:pronoun; ];
+    d2rq:translation [ d2rq:databaseValue "PROPN"; d2rq:rdfValue lila:proper_noun; ];
+    d2rq:translation [ d2rq:databaseValue "PUNCT"; d2rq:rdfValue lila:punctuation; ];
+    d2rq:translation [ d2rq:databaseValue "SCONJ"; d2rq:rdfValue lila:subordinating_conjunction; ];
+    d2rq:translation [ d2rq:databaseValue "SYM"; d2rq:rdfValue lila:symbol; ];
+    d2rq:translation [ d2rq:databaseValue "VERB"; d2rq:rdfValue lila:verb; ];
+    d2rq:translation [ d2rq:databaseValue "X"; d2rq:rdfValue lila:other; ];
+    .
+
+## hypohypolemma: POS mapping
+map:hypohypolemma_POS a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypohypolemmas ;
+    d2rq:property lila:hasPOS ;
+    d2rq:uriColumn "ipolemmaType.upostag";
+    d2rq:translateWith map:PosTablehypohypolemma;
+    .
+    
+    
+    
+map:GradTablehypohypolemma a d2rq:TranslationTable;
+    d2rq:translation [ d2rq:databaseValue "Abs"; d2rq:rdfValue lila:superlative; ];
+    d2rq:translation [ d2rq:databaseValue "Comp"; d2rq:rdfValue lila:comparative; ];
+    d2rq:translation [ d2rq:databaseValue "Pos"; d2rq:rdfValue lila:positive; ];
+    .
+    
+## hypohypolemma: Degree mapping
+map:hypohypolemma_Degree a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypohypolemmas ;
+    d2rq:property lila:hasDegree ;
+    d2rq:uriColumn "ipolemmaType.grad";
+    d2rq:translateWith map:GradTablehypohypolemma;
+    .
+    
+## hypohypolemma: gender masc
+map:gender_star_maschypohypoLemma a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypohypolemmas ;
+    d2rq:property lila:hasGender ;
+    d2rq:condition "ipolemmaType.gen IN ('m', '1', '2', '*') AND ipolemmaType.upostag IN ('PROPN', 'NOUN')" ;
+    d2rq:constantValue lila:masculine;
+    .
+
+## hypohypolemma: gender fem
+map:gender_star_femhypohypolemma a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypohypolemmas ;
+    d2rq:property lila:hasGender ;
+    d2rq:condition "ipolemmaType.gen IN ('f', '2', '*') AND ipolemmaType.upostag IN ('PROPN', 'NOUN')" ;
+    d2rq:constantValue lila:feminine;
+    .
+    
+## hypohypolemma: gender neut
+map:gender_star_neuthypohypolemma a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypohypolemmas ;
+    d2rq:property lila:hasGender ;
+    d2rq:condition "ipolemmaType.gen IN ('n', '1', '*') AND ipolemmaType.upostag IN ('PROPN', 'NOUN')";
+    d2rq:constantValue lila:neuter;
+    .
+
+## is hypohypolemma
+map:is_lemma_varianthypohypolemma a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypohypolemmas ;
+    d2rq:property lila:isHypolemma ;
+    d2rq:uriPattern "http://lila-erc.eu/data/id/hypolemma/@@ipolemma_ipolemma.iper_id_ipolemma@@"; 
+    .
+
+
+## hypohypolemma: derivational
+map:hypohypolemma_wfl a d2rq:PropertyBridge ;
+    d2rq:belongsToClassMap map:hypohypolemmas ;
+    d2rq:property lila:hasSuffix ;
+    d2rq:uriPattern "http://lila-erc.eu/data/id/suffix/@@ipolemma_suffix.id_suffix@@";
+    d2rq:join "ipolemma.id_ipolemma = ipolemma_suffix.id_ipolemma" ;
+	.
+
+
+##################################### End of ipo ipoLemmas mapping ############################################
+
+
+##################################### Derivational mapping ############################################
+
+# Table affixes -- prefix
+map:prefixes a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "http://lila-erc.eu/data/id/prefix/@@prefix.id_prefix@@";
+	d2rq:class lila:Prefix;
+	d2rq:classDefinitionLabel "prefix";
+	.
+	
+# Table affixes -- suffix
+map:suffixes a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "http://lila-erc.eu/data/id/suffix/@@suffix.id_suffix@@";
+	d2rq:class lila:Suffix;
+	d2rq:classDefinitionLabel "suffix";
+	.
+	
+# Table triple -- base
+map:lexicalbase a d2rq:ClassMap;
+    d2rq:dataStorage map:database;
+    d2rq:uriPattern "http://lila-erc.eu/data/id/base/@@lemma_base.id_base@@";
+    d2rq:class lila:Base;
+    d2rq:classDefinitionLabel "(lexical) base";
+    .
+    
+# Table triple -- lemmas
+map:lemmaClass a d2rq:ClassMap;
+    d2rq:dataStorage map:database;
+    d2rq:uriPattern "http://lila-erc.eu/data/id/lemma/@@lemma.id_lemma@@";
+    .
+
+# Generate labels for Prefixes	
+map:prefixes__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:prefixes;
+	d2rq:property rdfs:label;
+	d2rq:column "prefix.value" ;
+	.
+	
+# Generate labels for Suffixes
+map:suffixes__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:suffixes;
+	d2rq:property rdfs:label;
+	d2rq:column "suffix.value" ;
+	.
+
+# Generate labels for Bases
+map:bases__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:lexicalbase;
+	d2rq:property rdfs:label;
+        d2rq:sqlExpression "CONCAT('Base', lemma_base.id_base)" ;
+	#d2rq:column "suffix.value" ;
+	.
+
+# Generate hasBase links
+map:hasBase a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:lemmaClass;
+    d2rq:property lila:hasBase ;
+    d2rq:uriPattern "http://lila-erc.eu/data/id/base/@@lemma_base.id_base@@";
+    d2rq:join "lemma.id_lemma <= lemma_base.id_lemma" ;
+    .
+    
+# Generate hasPrefix links
+map:hasPrefix a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:lemmaClass;
+    d2rq:property lila:hasPrefix;
+    d2rq:uriPattern "http://lila-erc.eu/data/id/prefix/@@lemma_prefix.id_prefix@@";
+    d2rq:join "lemma.id_lemma <= lemma_prefix.id_lemma" ;
+    .
+    
+# Generate hasSuffix links
+map:hasSuffix a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:lemmaClass;
+    d2rq:property lila:hasSuffix;
+    d2rq:uriPattern "http://lila-erc.eu/data/id/suffix/@@lemma_suffix.id_suffix@@";
+    d2rq:join "lemma.id_lemma <= lemma_suffix.id_lemma" ;
+    .
+
+
+
+
