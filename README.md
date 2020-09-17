@@ -1,5 +1,6 @@
 # LiLa_Lemma-Bank
-LiLa Lemma Bank
+The LiLa Lemma Bank is core of the LiLa Knowledge Base. It consists of a large collection of
+Latin lemmas, serving as the backbone to achieve interoperability between the resources, by linking all those entries in lexical resources and tokens in corpora that point to the same lemma.
 
 ## Credits
 
