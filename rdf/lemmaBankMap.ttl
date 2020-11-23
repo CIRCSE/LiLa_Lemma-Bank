@@ -1,4 +1,5 @@
 # WARNING: guesswork based on a preliminary copy of the new Lemmario 
+# designed by Flavio Cecchini. It hasn't been tested on a real DB yet
 # It must be tried with a remote connection over the DB in Marginalia.
 
 # URI schema:
@@ -18,8 +19,9 @@
 
 map:database a d2rq:Database;
 	d2rq:jdbcDriver "com.mysql.jdbc.Driver";
-    d2rq:jdbcDSN "jdbc:mysql://<your_db_path>";
-	d2rq:username "yourUser";
+
+    d2rq:jdbcDSN "jdbc:mysql:<yourLiLaBD>";
+	d2rq:username "yourUserName";
 	d2rq:password "yourPassword";
 	jdbc:autoReconnect "true";
 	#d2rq:resultSizeLimit 10000 ;
@@ -144,7 +146,7 @@ map:hypolemmas a d2rq:ClassMap;
     # CHECK TABLE/COL NAME
     d2rq:uriPattern "http://lila-erc.eu/data/id/hypolemma/@@ipolemma.id_ipolemma@@"; 
     d2rq:class lila:Hypolemma ;
-    d2rq:condition "ipolemma.type = ipolemmaType.type and lemma_ipolemma.id_ipolemma = ipolemma.id_ipolemma and ipolemmaType.type NOT IN('COMP', 'SUP')" .
+    d2rq:condition "ipolemma.type = ipolemmaType.type and lemma_ipolemma.id_ipolemma = ipolemma.id_ipolemma and (ipolemmaType.type NOT IN('COMP', 'SUP') or ipolemma.id_ipolemma IN (SELECT id_ipolemma FROM hypolemmaCompSup))" .
 
 ## hypolemma labels
 map:hypolemma_label a d2rq:PropertyBridge;
@@ -269,7 +271,7 @@ map:hypohypolemmas a d2rq:ClassMap;
     # CHECK TABLE/COL NAME
     d2rq:uriPattern "http://lila-erc.eu/data/id/hypolemma/@@ipolemma.id_ipolemma@@"; 
     d2rq:class lila:Hypolemma ;
-    d2rq:condition "ipolemma.type = ipolemmaType.type and ipolemma_ipolemma.ipo_id_ipolemma = ipolemma.id_ipolemma and ipolemmaType.type NOT IN('COMP', 'SUP')" .
+    d2rq:condition "ipolemma.type = ipolemmaType.type and ipolemma_ipolemma.ipo_id_ipolemma = ipolemma.id_ipolemma and (ipolemmaType.type NOT IN('COMP', 'SUP') or ipolemma.id_ipolemma IN (SELECT id_ipolemma FROM hypolemmaCompSup))" .
 
 ## hypohypolemma labels
 map:hypohypolemma_label a d2rq:PropertyBridge;
