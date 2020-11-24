@@ -1,9 +1,9 @@
 # LiLa_Lemma-Bank
-The LiLa Lemma Bank is core of the LiLa Knowledge Base. It consists of a large collection of
+The LiLa Lemma Bank is the core of the LiLa Knowledge Base. It consists of a large collection of
 Latin lemmas, serving as the backbone to achieve interoperability between the resources, by linking all those entries in lexical resources and tokens in corpora that point to the same lemma.
 
-Data are coded both in relational database ( SQL format ) and graph database (RDF triples - turptle format ).
-Mapping between SQL and RDF data is made by mean of D2RQ according to the mapping file provided in 'rdf' folder.
+Data are coded both in a relational database ( SQL format ) and in a graph database (RDF triples - Turtle format).
+Mapping between SQL and RDF data is made by means of D2RQ according to the mapping file provided in the 'rdf' folder.
 
 ##  RELATIONAL DATABASE DESCRIPTION
 
@@ -15,7 +15,7 @@ Mapping between SQL and RDF data is made by mean of D2RQ according to the mappin
 ```
 lemma
 ```
-Each field refers to corrriposnding matedata table:
+Each field refers to the corresponding metadata table:
 ```
  flectional_category 
  gender              
@@ -29,7 +29,7 @@ Each field refers to corrriposnding matedata table:
 ```
  ipolemma            
 ```
-Field `type` refers to the the table
+Field `type` refers to the table
 ```
 ipolemmaType
 ```
@@ -70,19 +70,18 @@ phonetic_rep
     
     Some hypolemmas are explicitly related to suffixes too:
     - `ipolemma_suffix`
-a questi lemmi sono attribuiti esplicitamemte i suffissi.
 
 
 
 ### RDF mapping exception
-All hypolemmas are mapped in RDF except the one of type Comparative and Superlative.
-Comparative (and superlative) referred in table ```hypolemmaCompSup``` are however mapped.
+All hypolemmas are mapped to RDF except the ones of type Comparative and Superlative.
+Comparatives (and superlatives) referred in table ```hypolemmaCompSup``` are exceptions and are thus mapped.
 
 
 
 ### LemLat - LiLa Relations
 
-Some lemmas or hypolemmas are related to one or more LemLat lemma:
+Some lemmas or hypolemmas are related to one or more LemLat lemma(s):
 ```
  lemlat_lila        
 ``` 
@@ -94,14 +93,14 @@ Some lemmas or hypolemmas are related to one or more LemLat lemma:
 ```
 lilaLU
 ``` 
-Materialized View which put together lemmas and hypolemma.
-The three field ```id_lemma,id_ipolemma0,id_ipolemma1``` show the 'path' of 
+Materialized View putting together lemmas and hypolemmas.
+The three fields ```id_lemma,id_ipolemma0,id_ipolemma1``` show the 'path' of 
 each lemma or hypolemma according to the  ```class```: 
 - `0` for  lemma, 
 - `1` for  hypolemma of lemma, 
 - `2` for  hypolemma of hypolemma
 
-All written representation for each entry is listed in field ```wrList```
+All written representations for each entry are listed in the field ```wrList```
 
 
 ### Views
@@ -111,16 +110,16 @@ Some support views are provided.
 
 ## RDF mapping
 
-Relational Databdes is mapped to Graph Database by means of [D2RQ platform](http://d2rq.org/).
-Mapping file is provided in ```rdf``` folder.
-In the same folder a gzipped dump file of the triples in turtle format is given.
-Treples are produced with the command:
+The Relational Database is mapped to the Graph Database by means of the [D2RQ platform](http://d2rq.org/).
+The mapping file is provided in the ```rdf``` folder.
+In the same folder, a gzipped dump file of the triples in turtle format is given.
+Triples are produced with the command:
 
 ```
 ./dump-rdf -f TURTLE -o lemmaBank lemmaBankMap.ttl
 ```
 
-after editing the mapping file specifying database access parameters.
+after editing the mapping file specifying the database access parameters.
 
 
 ## Credits
