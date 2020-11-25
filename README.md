@@ -134,3 +134,6 @@ The _LiLa: Linking Latin_ project has received funding from the European Researc
 
 ## Citation
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4017229.svg)](https://doi.org/10.5281/zenodo.4017229)
+
+[![DOI](https://zenodo.org/badge/296268550.svg)](https://zenodo.org/badge/latestdoi/296268550)
+
