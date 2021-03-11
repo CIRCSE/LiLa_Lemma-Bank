@@ -434,8 +434,9 @@ map:suffixes__label a d2rq:PropertyBridge;
 map:bases__label a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:lexicalbase;
 	d2rq:property rdfs:label;
-        d2rq:sqlExpression "CONCAT('Base', lemma_base.id_base)" ;
+        d2rq:sqlExpression "CONCAT('Base of ', base.label)" ;
 	#d2rq:column "suffix.value" ;
+	d2rq:join "lemma_base.id_base <= base.id_base" ;
 	.
 
 # Generate hasBase links
