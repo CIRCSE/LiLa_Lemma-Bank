@@ -1,0 +1,16 @@
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+
+<http://lila-erc.eu/data/id/lemma/LemmaBank> a void:Dataset ;
+    rdfs:label "LiLa Lemma Collection" ;
+    dcterms:title "The LiLa Lemma Collection" ;
+    dcterms:description "The Lemma Bank is a collection of approximately 200,000 canonical forms for Latin that is used to interlink the linguistic resources in the LiLa Knowledge Base." ;
+    dcterms:source <https://doi.org/10.5281/zenodo.1492133> ;
+    dcterms:publisher <http://www.wikidata.org/entity/Q89883181> ;
+    dcterms:license <http://www.wikidata.org/entity/Q18199165> ;
+    void:vocabulary <http://lila-erc.eu/ontologies/lila>, <http://www.w3.org/ns/lemon/ontolex> ;
+    dcterms:bibliographicCitation "Passarotti, M., Mambrini, F., Franzini, G., Cecchini, F., Litta, E., Moretti, G., Ruffolo, P., & Sprugnoli, R. (2020). Interlinking through Lemmas. The Lexical Collection of the LiLa Knowledge Base of Linguistic Resources for Latin. Studi e Saggi Linguistici, 58(1), 177-212. doi:https://doi.org/10.4454/ssl.v58i1.277" ;
+    void:DatasetDescription <http://doi.org/10.5281/zenodo.4017229> .
+
