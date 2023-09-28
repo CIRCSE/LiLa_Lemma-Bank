@@ -112,7 +112,6 @@ Some support views are provided.
 
 The Relational Database is mapped to the Graph Database by means of the [D2RQ platform](http://d2rq.org/).
 The mapping file is provided in the ```rdf``` folder.
-In the same folder, a gzipped dump file of the triples in turtle format is given.
 Triples are produced with the command:
 
 ```
